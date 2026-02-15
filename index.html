@@ -113,6 +113,424 @@ footer{background:#667eea;color:white;padding:20px;text-align:center}
 
 <div class="page" id="chatPage">
 <div class="container">
+
+<h1>💬 Global Chat</h1>
+
+<div id="chatMessages" style="height:350px;overflow-y:auto;border:1px solid #ddd;padding:10px;border-radius:8px;margin-bottom:10px;background:#f9f9f9"></div>
+
+<div style="display:flex;gap:10px">
+<input type="text" id="chatInput" placeholder="Type message..." 
+style="flex:1;padding:10px;border:1px solid #ddd;border-radius:5px">
+<button class="btn" style="width:auto" onclick="sendMessage()">Send</button>
+</div>
+
+</div>
+</div>
+
+<div class="page" id="friendsPage">
+<div class="container">
+
+<h1>👥 Friends</h1>
+<h3>Your Friends</h3>
+<div class="grid" id="friendsList"></div>
+
+<hr style="margin:30px 0">
+
+<h3>Discover Users</h3>
+<div class="grid" id="allUsersList"></div>
+
+</div>
+</div>
+
+<div class="page" id="postsPage">
+<div class="container">
+
+<h1>📱 Posts</h1>
+
+<!-- CREATE POST -->
+<div class="card">
+
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+<img id="postUserPic" 
+style="width:45px;height:45px;border-radius:50%">
+<b id="postUserName">User</b>
+</div>
+
+<textarea 
+id="postText" 
+placeholder="What's on your mind?"
+style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;resize:none;height:80px;margin-bottom:10px"></textarea>
+
+<button class="btn" onclick="createPost()">Post</button>
+
+</div>
+
+<!-- POSTS LIST -->
+<div id="postsList" style="margin-top:20px"></div>
+
+</div>
+</div>
+
+<div class="page" id="onlinePage">
+<div class="container">
+<h1>🟢 Online Friends</h1>
+<div id="onlineList"></div>
+</div>
+</div>
+
+<div class="page" id="notificationsPage">
+<div class="container">
+<h1>🔔 Notifications</h1>
+<div class="notification">John added you as friend</div>
+<div class="notification">Sarah liked your post</div>
+<div class="notification">You have a new message</div>
+</div>
+</div>
+
+<div class="page" id="profilePage">
+<div class="container">
+<h1>👤 Profile</h1>
+<img id="profilePic" style="width:120px;height:120px;border-radius:50%;margin-bottom:15px">
+<div class="card">
+<p><strong>Name:</strong> <span id="profileName">User</span></p>
+<p><strong>Email:</strong> <span id="profileEmail">email@example.com</span></p>
+<button class="btn" onclick="alert('Edit Profile')">Edit Profile</button>
+<button class="btn" style="background:#3498db" onclick="changePassword()">Change Password</button>
+<button class="btn" onclick="addFriend()">Add Friend</button>
+<button class="btn" style="background:#e74c3c" onclick="deleteAccount()">Delete Account</button>
+</div>
+</div>
+</div>
+
+<div class="page" id="settingsPage">
+<div class="container">
+<h1>⚙️ Settings</h1>
+<div class="card">
+<p>Push Notifications <label class="toggle active" onclick="toggleSetting(this)"></label></p>
+<p>Email Notifications <label class="toggle" onclick="toggleSetting(this)"></label></p>
+<p>Dark Mode <label class="toggle" onclick="toggleSetting(this)"></label></p>
+<p>Show Online Status <label class="toggle active" onclick="toggleSetting(this)"></label></p>
+<p>Private Account <label class="toggle" onclick="toggleSetting(this)"></label></p>
+</div>
+</div>
+</div>
+
+<footer><p>&copy; 2026 Pacorner. All rights reserved.</p></footer>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import {
+getAuth,
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,
+signOut,
+updateProfile,
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+import {
+getDatabase,
+ref,
+set,
+push,
+onValue,
+remove,
+get,
+off
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+/* ================= FIREBASE ================= */
+
+const firebaseConfig = {
+apiKey: "AIzaSyCCqzb7JaBozWr-hR6G779V5Rgwei87H60",
+authDomain: "pacorner-chat.firebaseapp.com",
+databaseURL: "https://pacorner-chat-default-rtdb.europe-west1.firebasedatabase.app",
+projectId: "pacorner-chat",
+storageBucket: "pacorner-chat.firebasestorage.app",
+messagingSenderId: "428002279747",
+appId: "1:428002279747:web:3c74eb156a0e3e1f7baff6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+/* ================= GLOBAL ================= */
+
+let currentUser = null;
+let activePrivateChat = null;
+let currentChatRef = null;
+
+/* ================= SAFE DOM ================= */
+
+const navButtons = document.getElementById("navButtons");
+const userMenu = document.getElementById("userMenu");
+const allUsersList = document.getElementById("allUsersList");
+const friendsList = document.getElementById("friendsList");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+
+/* ================= MODAL FIX ================= */
+
+window.openLoginModal = () => {
+const el = document.getElementById("loginModal");
+if(el) el.style.display="flex";
+};
+
+window.openSignupModal = () => {
+const el = document.getElementById("signupModal");
+if(el) el.style.display="flex";
+};
+
+window.closeLoginModal = () => {
+const el = document.getElementById("loginModal");
+if(el) el.style.display="none";
+};
+
+window.closeSignupModal = () => {
+const el = document.getElementById("signupModal");
+if(el) el.style.display="none";
+};
+
+/* ================= AUTH ================= */
+
+onAuthStateChanged(auth, async (user)=>{
+
+if(user){
+
+currentUser = user;
+await set(ref(db,"online/"+user.uid), true);
+
+showLoggedIn();
+loadAllUsers();
+loadFriends();
+
+}else{
+
+if(currentUser){
+await remove(ref(db,"online/"+currentUser.uid));
+}
+
+currentUser = null;
+showLoggedOut();
+
+}
+
+});
+
+/* ================= UI ================= */
+
+function showLoggedIn(){
+if(navButtons) navButtons.style.display="none";
+if(userMenu) userMenu.style.display="flex";
+}
+
+function showLoggedOut(){
+if(navButtons) navButtons.style.display="flex";
+if(userMenu) userMenu.style.display="none";
+}
+
+/* ================= SIGNUP ================= */
+
+window.handleSignup = async ()=>{
+
+const name = document.getElementById("signupName")?.value.trim();
+const email = document.getElementById("signupEmail")?.value.trim();
+const pass = document.getElementById("signupPassword")?.value;
+
+if(!name||!email||!pass) return alert("Fill all fields");
+
+const res = await createUserWithEmailAndPassword(auth,email,pass);
+
+await updateProfile(res.user,{ displayName:name });
+
+await set(ref(db,"users/"+res.user.uid),{
+name,email,createdAt:Date.now()
+});
+
+alert("Account created");
+closeSignupModal();
+};
+
+/* ================= LOGIN ================= */
+
+window.handleLogin = async ()=>{
+const email = document.getElementById("loginEmail")?.value;
+const pass = document.getElementById("loginPassword")?.value;
+await signInWithEmailAndPassword(auth,email,pass);
+closeLoginModal();
+};
+
+window.handleLogout = async ()=>{
+await signOut(auth);
+};
+
+/* ================= DISCOVER USERS ================= */
+
+function loadAllUsers(){
+
+if(!currentUser || !allUsersList) return;
+
+onValue(ref(db,"users"), snap=>{
+
+allUsersList.innerHTML="";
+
+snap.forEach(child=>{
+
+const uid = child.key;
+const data = child.val();
+
+if(uid===currentUser.uid) return;
+
+allUsersList.innerHTML+=`
+<div class="friend-card">
+<h3>${data.name}</h3>
+<button onclick="sendRequest('${uid}')">Add Friend</button>
+</div>
+`;
+
+});
+
+});
+
+}
+
+window.sendRequest = async (uid)=>{
+
+if(!currentUser) return alert("Login first");
+if(uid===currentUser.uid) return alert("Cannot add yourself");
+
+await set(ref(db,`requests/${uid}/${currentUser.uid}`),true);
+alert("Friend request sent");
+
+};
+
+/* ================= FRIENDS ================= */
+
+function loadFriends(){
+
+if(!currentUser || !friendsList) return;
+
+onValue(ref(db,`friends/${currentUser.uid}`), async snap=>{
+
+friendsList.innerHTML="";
+
+for(const child of Object.entries(snap.val()||{})){
+
+const uid = child[0];
+const userSnap = await get(ref(db,"users/"+uid));
+if(!userSnap.exists()) continue;
+
+const onlineSnap = await get(ref(db,"online/"+uid));
+const data = userSnap.val();
+
+friendsList.innerHTML+=`
+<div class="friend-card">
+<h3>${data.name}</h3>
+<p>${onlineSnap.exists()?"🟢 Online":"⚪ Offline"}</p>
+<button onclick="openPrivateChat('${uid}','${data.name}')">Chat</button>
+</div>
+`;
+
+}
+
+});
+
+}
+
+/* ================= PRIVATE CHAT ================= */
+
+function chatRoomId(uid){
+return [currentUser.uid, uid].sort().join("_");
+}
+
+window.openPrivateChat = (uid,name)=>{
+
+if(!currentUser || !chatMessages) return;
+
+activePrivateChat = uid;
+
+chatMessages.innerHTML=`<h3>Chat with ${name}</h3>`;
+
+const roomId = chatRoomId(uid);
+const chatRef = ref(db,`privateChats/${roomId}`);
+
+if(currentChatRef) off(currentChatRef);
+
+currentChatRef = chatRef;
+
+onValue(chatRef, snap=>{
+
+chatMessages.innerHTML=`<h3>Chat with ${name}</h3>`;
+
+let messages=[];
+
+snap.forEach(child=>{
+messages.push(child.val());
+});
+
+messages.sort((a,b)=>a.time-b.time);
+
+messages.forEach(msg=>{
+chatMessages.innerHTML+=`
+<div style="margin:5px 0">
+<b>${msg.name}:</b> ${msg.text}
+</div>
+`;
+});
+
+chatMessages.scrollTop=chatMessages.scrollHeight;
+
+});
+
+};
+
+window.sendMessage = async ()=>{
+
+if(!currentUser) return alert("Login first");
+if(!activePrivateChat) return alert("Select friend");
+if(!chatInput) return;
+
+const text = chatInput.value.trim();
+if(!text) return;
+
+await push(ref(db,`privateChats/${chatRoomId(activePrivateChat)}`),{
+name:currentUser.displayName || "User",
+uid:currentUser.uid,
+text,
+time:Date.now()
+});
+
+chatInput.value="";
+
+};
+</script>
+</body>
+</html><input type="file" id="signupPic" accept="image/*">
+</div>
+<button class="btn" onclick="handleSignup()">Sign Up</button>
+<button class="btn btn-secondary" onclick="closeSignupModal()">Cancel</button>
+</div>
+</div>
+
+<div class="page show" id="homePage">
+<div class="container">
+<h1>🏠 Welcome to Pacorner</h1>
+<p>Your modern social chat platform!</p>
+<h3 style="margin-top:20px">Features:</h3>
+<ul style="margin:10px 0 0 20px">
+<li>💬 Real-time Chat</li>
+<li>👥 Friends</li>
+<li>📱 Posts & Stories</li>
+<li>🔔 Notifications</li>
+<li>⚙️ Settings</li>
+</ul>
+</div>
+</div>
+
+<div class="page" id="chatPage">
+<div class="container">
 <h1>💬 Chat</h1>
 <p>Start chatting with friends!</p>
 </div>
