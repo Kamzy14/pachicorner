@@ -7,46 +7,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --pc-gold: #ffcc00; 
-            --pc-black: #1a1a1a; 
-            --pc-dark: #000000;
-            --pc-white: #ffffff;
-            --pc-gray: #333333;
+            --pc-gold: #ffcc00; --pc-black: #1a1a1a; --pc-dark: #000000;
+            --pc-white: #ffffff; --pc-gray: #333333; 
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--pc-black); color: var(--pc-white); }
+        body { background: var(--pc-black); color: var(--pc-white); overflow-x: hidden; }
 
-        /* AUTH PAGES */
-        #auth-section { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; padding: 20px; background: var(--pc-dark);
-        }
+        /* AUTH SECTION */
+        #auth-section { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: var(--pc-dark); }
         .pc-logo-text { color: var(--pc-gold); font-size: 45px; font-weight: 900; margin-bottom: 10px; letter-spacing: -2px; }
         .auth-container { width: 100%; max-width: 400px; text-align: center; background: var(--pc-gray); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .input-field { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #444; border-radius: 8px; font-size: 16px; background: #222; color: white; }
+        .input-field { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #444; border-radius: 8px; font-size: 16px; background: #222; color: white; outline: none; }
         .login-btn { width: 100%; padding: 12px; background: var(--pc-gold); color: black; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; }
         .create-btn { background: transparent; color: var(--pc-gold); border: 2px solid var(--pc-gold); padding: 10px 20px; border-radius: 6px; font-weight: 700; margin-top: 15px; cursor: pointer; }
 
-        /* MAIN APP UI */
+        /* MAIN APP */
         #main-app { display: none; }
         header { background: var(--pc-dark); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--pc-gray); }
-        .logo { color: var(--pc-gold); font-size: 26px; font-weight: 900; letter-spacing: -1px; }
-        .h-icons { display: flex; gap: 10px; }
-        .circle-btn { background: var(--pc-gray); width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--pc-gold); }
-
+        .logo { color: var(--pc-gold); font-size: 26px; font-weight: 900; }
+        
         nav { background: var(--pc-dark); display: flex; border-bottom: 1px solid var(--pc-gray); position: sticky; top: 52px; z-index: 999; }
-        .tab { flex: 1; padding: 12px 0; text-align: center; font-size: 22px; color: #888; cursor: pointer; }
+        .tab { flex: 1; padding: 12px 0; text-align: center; font-size: 22px; color: #888; cursor: pointer; transition: 0.3s; }
         .tab.active { color: var(--pc-gold); border-bottom: 3px solid var(--pc-gold); }
 
-        /* CONTENT */
+        /* FEED & STORIES */
         .page { display: none; max-width: 600px; margin: 0 auto; padding-top: 10px; }
-        .page.active { display: block; }
-        .post { background: var(--pc-gray); margin-bottom: 10px; padding: 15px 0; border-radius: 10px; }
+        .page.active { display: block; animation: fadeIn 0.3s; }
+        
+        .stories-scroll { display: flex; gap: 8px; padding: 10px; overflow-x: auto; scrollbar-width: none; }
+        .story-card { min-width: 100px; height: 160px; background: var(--pc-gray); border-radius: 12px; position: relative; border: 1px solid #444; flex-shrink: 0; }
+        .st-name { position: absolute; bottom: 8px; left: 8px; font-size: 11px; font-weight: 600; color: white; }
+
+        .post { background: var(--pc-gray); margin: 10px; padding: 15px 0; border-radius: 12px; border: 1px solid #444; }
         .p-head { display: flex; align-items: center; padding: 0 15px 10px; gap: 10px; }
-        .p-text { padding: 0 15px 10px; color: #ddd; }
+        .p-text { padding: 0 15px 10px; color: #eee; font-size: 15px; }
+        .p-actions { display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #444; color: var(--pc-gold); font-weight: 600; font-size: 14px; }
+
+        /* MENU */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
-        .grid-item { background: var(--pc-gray); padding: 20px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 10px; border: 1px solid #444; }
-        .grid-item b { color: var(--pc-gold); }
+        .grid-item { background: var(--pc-gray); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #444; }
+        .grid-item span { font-size: 24px; display: block; margin-bottom: 5px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -60,7 +62,6 @@
             <div style="margin: 20px 0; border-bottom: 1px solid #444;"></div>
             <button class="create-btn" onclick="toggleAuth(true)">PANGANI ACCOUNT</button>
         </div>
-
         <div class="auth-container" id="reg-form" style="display:none;">
             <h2 style="color: var(--pc-gold); margin-bottom: 15px;">Lowani m'bungwe</h2>
             <input type="text" id="reg-firstname" class="input-field" placeholder="First name">
@@ -80,17 +81,24 @@
         </header>
 
         <nav>
-            <div class="tab active" id="t-home" onclick="tab('home')">🏠</div>
-            <div class="tab">📺</div>
-            <div class="tab">🔔</div>
-            <div class="tab" id="t-menu" onclick="tab('menu')">🏪</div>
+            <div class="tab active" id="tab-home" onclick="tab('home')">🏠</div>
+            <div class="tab" id="tab-video">📺</div>
+            <div class="tab" id="tab-notify">🔔</div>
+            <div class="tab" id="tab-menu" onclick="tab('menu')">🏪</div>
         </nav>
 
         <div id="p-home" class="page active">
-            <div style="background:var(--pc-gray); padding:15px; border-radius:10px; display:flex; gap:12px; margin: 0 10px 15px;">
-                <div id="u-initial" style="width:40px;height:40px;border-radius:50%;background:var(--pc-gold);color:black;display:grid;place-items:center;font-weight:bold;"></div>
-                <div style="background:#222; padding:10px 15px; border-radius:20px; flex:1; color:#888;">Lembani chinachake...</div>
+            <div class="stories-scroll">
+                <div class="story-card"><span class="st-name">Add Story</span></div>
+                <div class="story-card" style="background: #444;"><span class="st-name">Dalisoul</span></div>
+                <div class="story-card" style="background: #555;"><span class="st-name">Kamzy</span></div>
             </div>
+            
+            <div style="background:var(--pc-gray); padding:15px; border-radius:10px; display:flex; gap:12px; margin: 0 10px 15px; align-items: center;">
+                <div id="u-initial" style="width:40px;height:40px;border-radius:50%;background:var(--pc-gold);color:black;display:grid;place-items:center;font-weight:bold;"></div>
+                <div style="background:#222; padding:10px 15px; border-radius:20px; flex:1; color:#888;" onclick="alert('Lembani mawa!')">What's on your mind?</div>
+            </div>
+
             <div id="posts-container"></div>
         </div>
 
@@ -107,14 +115,14 @@
                     <div class="grid-item"><span>🏪</span><b>Market</b></div>
                     <div class="grid-item"><span>🎞️</span><b>Ma Reels</b></div>
                 </div>
-                <button onclick="logout()" style="width:100%; padding:15px; margin-top:10px; border:none; border-radius:10px; background:#cc0000; color:white; font-weight:bold;">TULUKANI (LOGOUT)</button>
+                <button onclick="logout()" style="width:100%; padding:15px; margin-top:10px; border:none; border-radius:10px; background:#cc0000; color:white; font-weight:bold; cursor:pointer;">TULUKANI (LOGOUT)</button>
             </div>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCCqzb7JaBozWr-hR6G779V5Rgwei87H60",
@@ -125,9 +133,11 @@
             messagingSenderId: "428002279747",
             appId: "1:428002279747:web:3c74eb156a0e3e1f7baff6"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // --- GLOBAL FUNCTIONS TO MAKE THEM WORK WITH ONCLICK ---
         window.toggleAuth = (reg) => {
             document.getElementById('login-form').style.display = reg ? 'none' : 'block';
             document.getElementById('reg-form').style.display = reg ? 'block' : 'none';
@@ -135,14 +145,27 @@
 
         window.handleAuth = (reg) => {
             let user = reg ? document.getElementById('reg-firstname').value + " " + document.getElementById('reg-surname').value : document.getElementById('login-name').value;
-            if(user.length > 2) {
+            if(user && user.length > 2) {
                 localStorage.setItem('pc_user', user);
                 location.reload();
+            } else {
+                alert("Lembani dzina loyenera!");
             }
         };
 
-        window.logout = () => { localStorage.removeItem('pc_user'); location.reload(); };
+        window.logout = () => {
+            localStorage.removeItem('pc_user');
+            location.reload();
+        };
 
+        window.tab = (id) => {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('p-' + id).classList.add('active');
+            document.getElementById('tab-' + id).classList.add('active');
+        };
+
+        // --- AUTH CHECK ---
         const user = localStorage.getItem('pc_user');
         if(user) {
             document.getElementById('auth-section').style.display = 'none';
@@ -152,22 +175,29 @@
             document.getElementById('u-initial-menu').innerText = user.charAt(0).toUpperCase();
         }
 
-        window.tab = (id) => {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('p-' + id).classList.add('active');
-        };
-
+        // --- LOAD POSTS ---
         onValue(ref(db, 'posts'), (s) => {
             const cont = document.getElementById('posts-container');
             cont.innerHTML = "";
             let posts = [];
             s.forEach(c => posts.push(c.val()));
-            if(posts.length === 0) posts = [{author: "Pacorner Bot", text: "Takulandirani ku Pacorner! 🔥"}];
+            
+            if(posts.length === 0) {
+                posts = [{author: "Pacorner Bot", text: "Takulandirani ku Pacorner! Pangani post yoyamba. 🔥"}];
+            }
+
             posts.reverse().forEach(p => {
-                cont.innerHTML += `<div class="post">
-                    <div class="p-head"><div style="width:35px;height:35px;border-radius:50%;background:var(--pc-gold);color:black;display:grid;place-items:center;font-weight:bold;">${p.author.charAt(0)}</div><b>${p.author}</b></div>
+                cont.innerHTML += `
+                <div class="post">
+                    <div class="p-head">
+                        <div style="width:35px;height:35px;border-radius:50%;background:var(--pc-gold);color:black;display:grid;place-items:center;font-weight:bold;">${p.author ? p.author.charAt(0) : '?'}</div>
+                        <b>${p.author || 'Anonymous'}</b>
+                    </div>
                     <div class="p-text">${p.text}</div>
-                    <div style="padding:10px 15px; color:var(--pc-gold); font-size:14px;">🔥 Kunyanyula &nbsp;&nbsp; 💬 Ndemanga</div>
+                    <div class="p-actions">
+                        <span>🔥 Kunyanyula</span>
+                        <span>💬 Ndemanga</span>
+                    </div>
                 </div>`;
             });
         });
