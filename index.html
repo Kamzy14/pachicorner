@@ -219,25 +219,24 @@ document.getElementById('navButtons').style.display = 'flex';
 document.getElementById('userMenu').style.display = 'none';
 document.getElementById('mainNav').innerHTML = '';
 }
-
 function addMainNav() {
 document.getElementById('mainNav').innerHTML = `
-<button class="active" onclick="showPage('home')">🏠 Home</button>
-<button onclick="showPage('chat')">💬 Chat</button>
-<button onclick="showPage('friends')">👥 Friends</button>
-<button onclick="showPage('posts')">📱 Posts</button>
-<button onclick="showPage('online')">🟢 Online</button>
-<button onclick="showPage('notifications')">🔔 Notifications</button>
-<button onclick="showPage('profile')">👤 Profile</button>
-<button onclick="showPage('settings')">⚙️ Settings</button>
+<button class="active" onclick="showPage('home', this)">🏠 Home</button>
+<button onclick="showPage('chat', this)">💬 Chat</button>
+<button onclick="showPage('friends', this)">👥 Friends</button>
+<button onclick="showPage('posts', this)">📱 Posts</button>
+<button onclick="showPage('online', this)">🟢 Online</button>
+<button onclick="showPage('notifications', this)">🔔 Notifications</button>
+<button onclick="showPage('profile', this)">👤 Profile</button>
+<button onclick="showPage('settings', this)">⚙️ Settings</button>
 `;
 }
 
-window.showPage = function(id) {
+window.showPage = function(id, btn) {
 document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
 document.getElementById(id + 'Page').classList.add('show');
 document.querySelectorAll('#mainNav button').forEach(b => b.classList.remove('active'));
-event.target.classList.add('active');
+btn.classList.add('active');
 }
 
 window.openLoginModal = () => document.getElementById('loginModal').classList.add('show');
